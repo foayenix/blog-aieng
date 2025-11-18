@@ -114,7 +114,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Calculate weighted vote score
-    const voteScore = articleVersion.votes.reduce((sum, vote) => {
+    const voteScore = articleVersion.votes.reduce((sum: number, vote: typeof articleVersion.votes[number]) => {
       const weight = ROLE_WEIGHTS[vote.user.role as Role]
       return sum + vote.value * weight
     }, 0)
@@ -122,8 +122,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // Calculate vote breakdown by role
     const voteBreakdown = {
       total: articleVersion.votes.length,
-      upvotes: articleVersion.votes.filter((v) => v.value > 0).length,
-      downvotes: articleVersion.votes.filter((v) => v.value < 0).length,
+      upvotes: articleVersion.votes.filter((v: typeof articleVersion.votes[number]) => v.value > 0).length,
+      downvotes: articleVersion.votes.filter((v: typeof articleVersion.votes[number]) => v.value < 0).length,
       byRole: {
         READER: { up: 0, down: 0 },
         CONTRIBUTOR: { up: 0, down: 0 },
@@ -143,7 +143,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Format votes with additional details
-    const formattedVotes = articleVersion.votes.map((vote) => ({
+    const formattedVotes = articleVersion.votes.map((vote: typeof articleVersion.votes[number]) => ({
       id: vote.id,
       value: vote.value,
       weight: ROLE_WEIGHTS[vote.user.role as Role],
@@ -175,7 +175,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       votes: formattedVotes,
       voteScore,
       voteBreakdown,
-      moderationActions: articleVersion.moderationActions.map((action) => ({
+      moderationActions: articleVersion.moderationActions.map((action: typeof articleVersion.moderationActions[number]) => ({
         id: action.id,
         action: action.action,
         reason: action.reason,

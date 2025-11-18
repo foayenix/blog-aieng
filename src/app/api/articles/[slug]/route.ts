@@ -108,7 +108,7 @@ export async function GET(
     prisma.article.update({
       where: { id: article.id },
       data: { viewCount: { increment: 1 } }
-    }).catch(err => console.error('Failed to increment view count:', err))
+    }).catch((err: unknown) => console.error('Failed to increment view count:', err))
 
     return NextResponse.json(article)
   } catch (error) {

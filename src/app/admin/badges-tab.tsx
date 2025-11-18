@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Badge as BadgeModel, Role } from '@prisma/client'
+import { Role } from '@prisma/client'
 import { formatDistanceToNow } from 'date-fns'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -27,7 +27,13 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 
-interface BadgeWithCount extends BadgeModel {
+interface BadgeWithCount {
+  id: string
+  slug: string
+  label: string
+  description: string
+  icon: string | null
+  createdAt: Date
   _count: {
     userBadges: number
   }

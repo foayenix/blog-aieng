@@ -120,7 +120,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     if (action === 'force_approve') {
       // Force approval - bypass thresholds
-      const result = await prisma.$transaction(async (tx) => {
+      const result = await prisma.$transaction(async (tx: Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => {
         // Update article status
         const updatedArticle = await tx.article.update({
           where: { id: articleVersion.article.id },
@@ -180,7 +180,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     if (action === 'reject' || action === 'force_reject') {
       // Reject the article
-      const result = await prisma.$transaction(async (tx) => {
+      const result = await prisma.$transaction(async (tx: Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => {
         // Update article status
         const updatedArticle = await tx.article.update({
           where: { id: articleVersion.article.id },

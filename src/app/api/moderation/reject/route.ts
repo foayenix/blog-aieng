@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Perform the rejection in a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => {
       // Update article status to REJECTED
       const updatedArticle = await tx.article.update({
         where: { id: articleVersion.articleId },

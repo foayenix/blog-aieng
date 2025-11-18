@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Perform the approval in a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => {
       // Update article status and current version
       const updatedArticle = await tx.article.update({
         where: { id: articleVersion.articleId },
@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
     await evaluateUserPromotions(articleVersion.createdBy.id)
 
     // Reward approving voters (positive votes)
-    const positiveVoters = articleVersion.votes.filter((v) => v.value > 0)
+    const positiveVoters = articleVersion.votes.filter((v: typeof articleVersion.votes[number]) => v.value > 0)
     for (const vote of positiveVoters) {
       await applyReputationEvent(
         vote.user.id,

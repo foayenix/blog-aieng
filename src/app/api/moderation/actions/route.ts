@@ -18,8 +18,8 @@ const querySchema = z.object({
   action: z.enum(MODERATION_ACTION_TYPES).optional(),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
-  limit: z.string().regex(/^\d+$/).transform(Number).default('50'),
-  offset: z.string().regex(/^\d+$/).transform(Number).default('0'),
+  limit: z.string().regex(/^\d+$/).transform(Number).default(50),
+  offset: z.string().regex(/^\d+$/).transform(Number).default(0),
 })
 
 /**
@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Format the response
-    const formattedActions = actions.map((action) => ({
+    const formattedActions = actions.map((action: typeof actions[number]) => ({
       id: action.id,
       action: action.action,
       reason: action.reason,

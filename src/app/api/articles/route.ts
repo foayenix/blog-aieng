@@ -208,7 +208,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create article with initial version and thread in a transaction
-    const article = await prisma.$transaction(async (tx) => {
+    const article = await prisma.$transaction(async (tx: Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => {
       // Create the article
       const newArticle = await tx.article.create({
         data: {

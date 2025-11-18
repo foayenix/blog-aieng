@@ -101,7 +101,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Perform the force approve in a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => {
       // Update article status to PUBLISHED and set current version
       const updatedArticle = await tx.article.update({
         where: { id: articleVersion.articleId },
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     await evaluateUserPromotions(articleVersion.createdBy.id)
 
     // Reward approving voters (positive votes)
-    const positiveVoters = articleVersion.votes.filter((v) => v.value > 0)
+    const positiveVoters = articleVersion.votes.filter((v: typeof articleVersion.votes[number]) => v.value > 0)
     for (const vote of positiveVoters) {
       await applyReputationEvent(
         vote.user.id,

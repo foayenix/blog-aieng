@@ -3,7 +3,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter'
 import GitHubProvider from 'next-auth/providers/github'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import bcryptjs from 'bcryptjs'
-import prisma from './prisma'
+import { prisma } from './prisma'
 import { Role } from '@prisma/client'
 
 export const authOptions: NextAuthOptions = {

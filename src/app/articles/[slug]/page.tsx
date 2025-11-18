@@ -182,18 +182,18 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   // Calculate vote score
   const voteScore =
-    article.currentVersion?.votes?.reduce((acc, vote) => acc + vote.value, 0) ?? 0
+    article.currentVersion?.votes?.reduce((acc: number, vote: { value: number }) => acc + vote.value, 0) ?? 0
 
   // Get user's vote for the current version
   const userVote = session?.user?.id
     ? article.currentVersion?.votes?.find(
-        (vote) => vote.userId === session.user.id
+        (vote: { userId: string; value: number }) => vote.userId === session.user.id
       )?.value
     : null
 
   const authorInitials = article.author.name
     ?.split(" ")
-    .map((n) => n[0])
+    .map((n: string) => n[0])
     .join("")
     .toUpperCase() || "?"
 
@@ -272,7 +272,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           {article.tags.length > 0 && (
             <div className="flex flex-wrap items-center gap-2 mt-4">
               <Tag className="h-4 w-4 text-muted-foreground" />
-              {article.tags.map((tag) => (
+              {article.tags.map((tag: string) => (
                 <Link key={tag} href={`/articles?tag=${tag}`}>
                   <Badge variant="outline" className="cursor-pointer hover:bg-accent">
                     {tag}
@@ -317,17 +317,17 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 <div className="space-y-4">
                   {proposedUpdates.map((version) => {
                     const versionScore = version.votes.reduce(
-                      (acc, vote) => acc + vote.value,
+                      (acc: number, vote: { value: number }) => acc + vote.value,
                       0
                     )
                     const versionUserVote = session?.user?.id
                       ? version.votes.find(
-                          (vote) => vote.userId === session.user.id
+                          (vote: { userId: string; value: number }) => vote.userId === session.user.id
                         )?.value
                       : null
                     const versionAuthorInitials = version.createdBy.name
                       ?.split(" ")
-                      .map((n) => n[0])
+                      .map((n: string) => n[0])
                       .join("")
                       .toUpperCase() || "?"
 

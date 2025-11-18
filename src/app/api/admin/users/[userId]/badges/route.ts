@@ -95,7 +95,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Award badge in a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => {
       // Create user badge
       const userBadge = await tx.userBadge.create({
         data: {
@@ -183,7 +183,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     return NextResponse.json({
-      badges: userBadges.map((ub) => ({
+      badges: userBadges.map((ub: typeof userBadges[number]) => ({
         ...ub.badge,
         awardedAt: ub.awardedAt,
       })),

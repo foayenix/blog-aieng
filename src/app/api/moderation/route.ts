@@ -117,10 +117,10 @@ export async function GET(request: NextRequest) {
     })
 
     // Transform data and calculate scores
-    const versionsUnderReview = articles.flatMap((article) =>
-      article.versions.map((version) => {
+    const versionsUnderReview = articles.flatMap((article: typeof articles[number]) =>
+      article.versions.map((version: typeof article.versions[number]) => {
         // Calculate weighted score
-        const totalScore = version.votes.reduce((sum, vote) => {
+        const totalScore = version.votes.reduce((sum: number, vote: typeof version.votes[number]) => {
           const weight = ROLE_WEIGHTS[vote.user.role as Role]
           return sum + vote.value * weight
         }, 0)
@@ -166,15 +166,15 @@ export async function GET(request: NextRequest) {
     // Filter by score if provided
     let filteredVersions = versionsUnderReview
     if (minScore !== undefined) {
-      filteredVersions = filteredVersions.filter((v) => v.voteScore >= minScore)
+      filteredVersions = filteredVersions.filter((v: typeof versionsUnderReview[number]) => v.voteScore >= minScore)
     }
     if (maxScore !== undefined) {
-      filteredVersions = filteredVersions.filter((v) => v.voteScore <= maxScore)
+      filteredVersions = filteredVersions.filter((v: typeof versionsUnderReview[number]) => v.voteScore <= maxScore)
     }
 
     // Sort by oldest first (FIFO for review)
     filteredVersions.sort(
-      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      (a: typeof versionsUnderReview[number], b: typeof versionsUnderReview[number]) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     )
 
     return NextResponse.json({

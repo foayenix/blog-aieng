@@ -91,7 +91,7 @@ export async function GET(
     // Get user's vote if authenticated
     let userVote = null
     if (session?.user) {
-      const vote = votes.find((v) => v.user.id === session.user.id)
+      const vote = votes.find((v: typeof votes[number]) => v.user.id === session.user.id)
       if (vote) {
         userVote = {
           id: vote.id,

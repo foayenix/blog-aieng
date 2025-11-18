@@ -78,7 +78,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    const updatedUser = await prisma.$transaction(async (tx) => {
+    const updatedUser = await prisma.$transaction(async (tx: Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => {
       const updated = await tx.user.update({
         where: { id: userId },
         data: { role: newRole },

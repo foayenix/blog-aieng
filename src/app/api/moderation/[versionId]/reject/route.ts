@@ -102,7 +102,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const isJudgeOrHigher = canForceApprove(session.user.role)
 
     // Calculate weighted vote score
-    const voteScore = articleVersion.votes.reduce((sum, vote) => {
+    const voteScore = articleVersion.votes.reduce((sum: number, vote: typeof articleVersion.votes[number]) => {
       const weight = ROLE_WEIGHTS[vote.user.role as Role]
       return sum + vote.value * weight
     }, 0)
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Perform the rejection in a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => {
       // Update article status to REJECTED
       const updatedArticle = await tx.article.update({
         where: { id: articleVersion.articleId },

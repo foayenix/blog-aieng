@@ -143,7 +143,7 @@ export async function GET(
       voteBreakdown,
       // Only include detailed votes and moderation actions for reviewers+
       ...(isReviewerOrAbove ? {
-        votes: version.votes.map(v => ({
+        votes: version.votes.map((v: typeof version.votes[number]) => ({
           id: v.id,
           value: v.value,
           createdAt: v.createdAt,
@@ -153,7 +153,7 @@ export async function GET(
       } : {
         // For non-reviewers, only show if user has voted
         userVote: session?.user?.id
-          ? version.votes.find(v => v.userId === session.user.id)?.value || null
+          ? version.votes.find((v: typeof version.votes[number]) => v.userId === session.user.id)?.value || null
           : null
       })
     }

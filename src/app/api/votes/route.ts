@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     })
 
     const voteCount = votes.length
-    const totalScore = votes.reduce((sum, v) => {
+    const totalScore = votes.reduce((sum: number, v: typeof votes[number]) => {
       const weight = ROLE_WEIGHTS[v.user.role as Role]
       return sum + v.value * weight
     }, 0)

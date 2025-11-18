@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import prisma from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 import { getServerSession } from "@/lib/auth"
 import { UserCard } from "@/components/profile/user-card"
 import { BadgeDisplay } from "@/components/profile/badge-display"

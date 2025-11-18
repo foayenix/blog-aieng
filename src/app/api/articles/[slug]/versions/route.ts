@@ -138,7 +138,7 @@ export async function POST(
     const { bodyMdx, changelog } = validationResult.data
 
     // Create new version in a transaction
-    const version = await prisma.$transaction(async (tx) => {
+    const version = await prisma.$transaction(async (tx: Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => {
       // Get the latest version number
       const latestVersion = await tx.articleVersion.findFirst({
         where: { articleId: article.id },
