@@ -1,0 +1,271 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum Role {
+  READER
+  CONTRIBUTOR
+  REVIEWER
+  JUDGE
+  MAINTAINER
+}
+
+enum ArticleStatus {
+  DRAFT
+  UNDER_REVIEW
+  PUBLISHED
+  REJECTED
+}
+
+enum ArticleCategory {
+  FOUNDATIONS
+  SYSTEMS
+  APPLIED
+  MLOPS
+  SAFETY
+  BENCHMARKS
+  CASE_STUDIES
+  CAREER
+}
+
+enum ReputationEventType {
+  ARTICLE_MERGED
+  SUBSTANTIAL_MERGE
+  CITED
+  UPVOTE
+  REVERTED
+  BADGE_EARNED
+  PROMOTED
+}
+
+// NextAuth Models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Core Models
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?   // For email/password auth
+  role          Role      @default(READER)
+  reputation    Int       @default(0)
+  bio           String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  accounts          Account[]
+  sessions          Session[]
+  articles          Article[]
+  articleVersions   ArticleVersion[]
+  votes             Vote[]
+  reputationEvents  ReputationEvent[]
+  badges            UserBadge[]
+  threads           Thread[]
+  comments          ThreadComment[]
+  moderationActions ModerationAction[]
+}
+
+model Article {
+  id               String          @id @default(cuid())
+  slug             String          @unique
+  title            String
+  summary          String          @db.Text
+  status           ArticleStatus   @default(DRAFT)
+  category         ArticleCategory
+  tags             String[]
+  currentVersionId String?
+  authorId         String
+  viewCount        Int             @default(0)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  // Relations
+  author         User             @relation(fields: [authorId], references: [id])
+  currentVersion ArticleVersion?  @relation("CurrentVersion", fields: [currentVersionId], references: [id])
+  versions       ArticleVersion[] @relation("ArticleVersions")
+  thread         Thread?
+  citations      Citation[]       @relation("CitingArticle")
+  citedBy        Citation[]       @relation("CitedArticle")
+
+  @@index([status])
+  @@index([category])
+  @@index([authorId])
+}
+
+model ArticleVersion {
+  id            String   @id @default(cuid())
+  articleId     String
+  versionNumber Int
+  bodyMdx       String   @db.Text
+  changelog     String?  @db.Text
+  createdById   String
+  createdAt     DateTime @default(now())
+
+  // Relations
+  article           Article            @relation("ArticleVersions", fields: [articleId], references: [id], onDelete: Cascade)
+  currentForArticle Article[]          @relation("CurrentVersion")
+  createdBy         User               @relation(fields: [createdById], references: [id])
+  votes             Vote[]
+  moderationActions ModerationAction[]
+
+  @@unique([articleId, versionNumber])
+  @@index([articleId])
+}
+
+model Vote {
+  id               String   @id @default(cuid())
+  articleVersionId String
+  userId           String
+  value            Int      // +1 or -1
+  createdAt        DateTime @default(now())
+
+  // Relations
+  articleVersion ArticleVersion @relation(fields: [articleVersionId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id])
+
+  @@unique([articleVersionId, userId])
+  @@index([articleVersionId])
+}
+
+model ReputationEvent {
+  id        String              @id @default(cuid())
+  userId    String
+  type      ReputationEventType
+  delta     Int
+  metadata  Json?
+  createdAt DateTime            @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+}
+
+model Badge {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  label       String
+  description String
+  icon        String?
+  createdAt   DateTime    @default(now())
+  userBadges  UserBadge[]
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  badgeId   String
+  awardedAt DateTime @default(now())
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+}
+
+model Thread {
+  id          String   @id @default(cuid())
+  articleId   String   @unique
+  createdById String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  article   Article         @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  createdBy User            @relation(fields: [createdById], references: [id])
+  comments  ThreadComment[]
+}
+
+model ThreadComment {
+  id              String   @id @default(cuid())
+  threadId        String
+  userId          String
+  body            String   @db.Text
+  parentCommentId String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  thread   Thread          @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  user     User            @relation(fields: [userId], references: [id])
+  parent   ThreadComment?  @relation("CommentReplies", fields: [parentCommentId], references: [id])
+  replies  ThreadComment[] @relation("CommentReplies")
+
+  @@index([threadId])
+  @@index([userId])
+}
+
+model Citation {
+  id              String   @id @default(cuid())
+  citingArticleId String
+  citedArticleId  String
+  createdAt       DateTime @default(now())
+
+  // Relations
+  citingArticle Article @relation("CitingArticle", fields: [citingArticleId], references: [id], onDelete: Cascade)
+  citedArticle  Article @relation("CitedArticle", fields: [citedArticleId], references: [id], onDelete: Cascade)
+
+  @@unique([citingArticleId, citedArticleId])
+}
+
+model ModerationAction {
+  id               String   @id @default(cuid())
+  articleVersionId String
+  userId           String
+  action           String   // 'APPROVED' | 'REJECTED' | 'FORCE_APPROVED' | 'FORCE_REJECTED'
+  reason           String?  @db.Text
+  createdAt        DateTime @default(now())
+
+  // Relations
+  articleVersion ArticleVersion @relation(fields: [articleVersionId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id])
+
+  @@index([articleVersionId])
+  @@index([userId])
+}
